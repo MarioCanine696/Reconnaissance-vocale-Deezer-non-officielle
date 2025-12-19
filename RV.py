@@ -42,9 +42,11 @@ if __name__ == '__main__':
             url = recherche_titre(text)
             print(f"Titre : {url['title']}, Artiste : {url['artist']['name']}")
             webbrowser.open(f"deezer://{url['link']}?")
+            time.sleep(1)
+            pyautogui.hotkey("win", "up")
             recherch_bouton("play.png")
                 
     except sr.UnknownValueError:
         print("Impossible de comprendre.")
     except sr.RequestError:
-        print("Erreur de connexion à l'API.")
+        print("Erreur de connexion à l'API Speech Recognition.")
