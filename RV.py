@@ -17,11 +17,11 @@ def recherche_titre(type, nom):
         else:
             print("Aucun résultat trouvé.")
             time.sleep(2)
-            sys.exit()
+            sys.exit(1)
     except Exception:
         print("Erreur lors de la recherche du titre.")
         time.sleep(2)
-        sys.exit()
+        sys.exit(1)
 
 def recherch_bouton(image_path):
     start_time = time.time()
