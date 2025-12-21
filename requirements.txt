@@ -1,6 +1,5 @@
 SpeechRecognition
 requests
 pyautogui
-keyboard
 nava
 pyaudio
