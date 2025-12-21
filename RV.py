@@ -66,31 +66,41 @@ if __name__ == '__main__':
     titre = text.split(" ", 1)[1:]
     if type == "Flow":
         print("Fonction en dévellopement")
+        time.sleep(2)
     elif type == "titre" or type == "track" or type == "chanson":
         response = recherche_titre("track", titre)
         print(f"Titre : {response['title']}, Artiste : {response['artist']['name']}")
         webbrowser.open(f"deezer://{response['link']}?")
         time.sleep(1)
         recherch_bouton("images/play.png")
-    elif type == "album":
+    elif type == "album" or type == "record" or type == "disque":
         response = recherche_titre("album", titre)
         print(f"Album : {response['title']}, Artiste : {response['artist']['name']}")
         webbrowser.open(f"deezer://{response['link']}?")
         time.sleep(1)
         recherch_bouton("images/playlist.png")
-    elif type == "artiste":
+    elif type == "artiste" or type == "artist" or type == "auteur" or type == "chanteur":
         response = recherche_titre("artist", titre)
         print(f"Artiste : {response['name']}")
         webbrowser.open(f"deezer://{response['link']}?")
         time.sleep(1)
         recherch_bouton("images/artiste.png")
-    elif type == "playlist":
+    elif type == "playlist" or type == "liste" or type == "playliste":
         response = recherche_titre("playlist", titre)
         print(f"Playlist : {response['title']}")
         webbrowser.open(f"deezer://{response['link']}?")
         time.sleep(1)
         recherch_bouton("images/playlist.png")
     else:
+        print("Type non reconnu. Veuillez dire 'Flow', 'Titre', 'Album', 'Artiste' ou 'Playlist' puis le titre.")
+        time.sleep(1)
+        print("Recherche par défaut du titre...")
+        time.sleep(1)
+        response = recherche_titre("track", titre)
+        print(f"Titre : {response['title']}, Artiste : {response['artist']['name']}")
+        webbrowser.open(f"deezer://{response['link']}?")
+        time.sleep(1)
+        recherch_bouton("images/play.png")
         print("Type non reconnu. Veuillez dire 'Flow', 'Titre', 'Album', 'Artiste' ou 'Playlist' puis le titre.")
         time.sleep(5)
         sys.exit()
