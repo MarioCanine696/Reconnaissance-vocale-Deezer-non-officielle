@@ -38,6 +38,7 @@ def ecoute_continu():
                 elif "stop deezer" in text or "arrête deezer" in text:
                     print("Arrêt de l'assistant vocal Deezer.")
                     parler("Arrêt de l'assistant vocal Deezer.")
+                    time.sleep(2)
                     sys.exit(0)
             except sr.UnknownValueError:
                 continue
