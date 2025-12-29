@@ -13,7 +13,7 @@ list_types = ["album","record","disque","playlist","liste","playliste","artiste"
 def ecoute_continu():
     r = sr.Recognizer()
     with sr.Microphone() as source:
-        print("Assistant vocal Deezer en écoute dites Hey Deezer pour lancer une commande vocale...")
+        print("Assistant vocal Deezer en écoute dites Hey Deezer pour lancer une commande vocale et dites Arrête Deezer pour arrêter l'assistant.")
         while True:
             try:
                 audio = r.listen(source)
@@ -36,8 +36,10 @@ def ecoute_continu():
         type = next((item for item in list_types if item.lower() in son),None)
         print("Type détecté :",type)
         if type is None:
-            type = "flow"
-        position_type = son.index(type.lower())
+            type = "titre"
+            position_type = 0
+        else:
+            position_type = son.index(type.lower())
         titre = son[position_type + len(type):].strip()
     except Exception:
         print("Aucun type détecté dans la commande vocale.")
