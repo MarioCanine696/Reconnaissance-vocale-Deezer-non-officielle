@@ -1,5 +1,6 @@
 SpeechRecognition
 requests
 pyautogui
-nava
+gtts
 pyaudio
+pygame
