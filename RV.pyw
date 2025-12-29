@@ -4,16 +4,32 @@ import webbrowser
 import time
 import pyautogui
 import sys
-from nava import play
 import pygetwindow as gw
+from gtts import gTTS
+import pygame
 
-version = "beta 1.0.0"
+def play(fichier):
+    pygame.mixer.init()
+    pygame.mixer.music.load(fichier)
+    pygame.mixer.music.play()
+
+def parler(texte):
+    tts = gTTS(texte, lang="fr")
+    tts.save("temp.mp3")
+
+    pygame.mixer.init()
+    pygame.mixer.music.load("temp.mp3")
+    pygame.mixer.music.play()
+
+
+version = "beta 2.0.0"
 list_types = ["album","record","disque","playlist","liste","playliste","artiste","artist","auteur","chanteur","flow","flo","Flow","Flo","titre","track","chanson"]
 
 def ecoute_continu():
     r = sr.Recognizer()
     with sr.Microphone() as source:
         print("Assistant vocal Deezer en écoute dites Hey Deezer pour lancer une commande vocale et dites Arrête Deezer pour arrêter l'assistant.")
+        parler("Lancement de l'assistant vocal.")
         while True:
             try:
                 audio = r.listen(source)
@@ -23,6 +39,7 @@ def ecoute_continu():
                     break
                 elif "stop deezer" in text or "arrête deezer" in text:
                     print("Arrêt de l'assistant vocal Deezer.")
+                    parler("Arrêt de l'assistant vocal Deezer.")
                     sys.exit(0)
             except sr.UnknownValueError:
                 continue
@@ -70,7 +87,7 @@ def recherche_bouton(type,response):
         recherche_flow()
         return
     if response is None:
-        webbrowser.open("deezer://")
+        webbrowser.open("deezer://www.deezer.com/fr/")
         return
     webbrowser.open("deezer://" + response["link"])
     if type in ["album","record","disque","playlist","liste","playliste"]:

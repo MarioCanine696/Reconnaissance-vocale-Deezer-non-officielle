@@ -1,4 +1,4 @@
 ﻿^M::
 {
-    Run "RV.py"
+    Run "RV.pyw"
 }
