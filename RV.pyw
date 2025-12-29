@@ -22,14 +22,12 @@ def parler(texte):
     pygame.mixer.music.play()
 
 
-version = "beta 2.0.0"
+version = "beta 2.1.0"
 list_types = ["album","record","disque","playlist","liste","playliste","artiste","artist","auteur","chanteur","flow","flo","Flow","Flo","titre","track","chanson"]
 
 def ecoute_continu():
     r = sr.Recognizer()
     with sr.Microphone() as source:
-        print("Assistant vocal Deezer en écoute dites Hey Deezer pour lancer une commande vocale et dites Arrête Deezer pour arrêter l'assistant.")
-        parler("Lancement de l'assistant vocal.")
         while True:
             try:
                 audio = r.listen(source)
@@ -181,5 +179,7 @@ def start():
 
 if __name__ == '__main__':
     start()
+    print("Assistant vocal Deezer en écoute dites Hey Deezer pour lancer une commande vocale et dites Arrête Deezer pour arrêter l'assistant.")
+    parler("Lancement de l'assistant vocal.")
     while True:
         ecoute_continu()
