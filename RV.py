@@ -8,38 +8,75 @@ from nava import play
 import pygetwindow as gw
 
 version = "beta 1.0.0"
-list_types = ["album", "record", "disque", "playlist", "liste", "playliste", "artiste", "artist", "auteur", "chanteur", "flow", "flo", "Flow", "Flo", "titre", "track", "chanson"]
+list_types = ["album","record","disque","playlist","liste","playliste","artiste","artist","auteur","chanteur","flow","flo","Flow","Flo","titre","track","chanson"]
 
-def recherche_titre(type, nom):
+def ecoute_continu():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Assistant vocal Deezer en écoute dites Hey Deezer pour lancer une commande vocale...")
+        while True:
+            try:
+                audio = r.listen(source)
+                text = r.recognize_google(audio,language="fr-FR").lower()
+                if "hey deezer" in text or "et deezer" in text:
+                    time.sleep(1)
+                    break
+                elif "stop deezer" in text or "arrête deezer" in text:
+                    print("Arrêt de l'assistant vocal Deezer.")
+                    sys.exit(0)
+            except sr.UnknownValueError:
+                continue
+            except sr.RequestError:
+                continue
+    son = reconnaissance_vocale()
+    if not son:
+        return
+    son = son.lower()
+    try:
+        type = next((item for item in list_types if item.lower() in son),None)
+        print("Type détecté :",type)
+        if type is None:
+            type = "flow"
+        position_type = son.index(type.lower())
+        titre = son[position_type + len(type):].strip()
+    except Exception:
+        print("Aucun type détecté dans la commande vocale.")
+        return
+    print(f'Analyse du son : {titre}')
+    response = analyse_type(type,titre)
+    recherche_bouton(type,response)
+    time.sleep(2)
+    print("Relance la commande vocale...")
+
+def recherche_titre(type,nom):
     try:
         url = f"https://api.deezer.com/search/{type}?q={nom}"
         response = requests.get(url)
         data = response.json()
-        if data == response.json():
+        if data.get("data"):
             print("Recherche effectuée avec succès.")
             return data["data"][0]
         else:
             print("Aucun résultat trouvé.")
-            time.sleep(2)
-            sys.exit(1)
+            return None
     except Exception:
         print("Erreur lors de la recherche du titre.")
-        time.sleep(2)
-        sys.exit(1)
+        return None
 
-def recherche_bouton(type, response):
-    webbrowser.open(f"deezer://{response['link']}?")
-    if response is None:
-        webbrowser.open("deezer://https://www.deezer.com/fr/")
+def recherche_bouton(type,response):
+    if type.lower() in ["flow","flo"]:
         recherche_flow()
-    if type in ["album", "record", "disque", "playlist", "liste", "playliste"]:
+        return
+    if response is None:
+        webbrowser.open("deezer://")
+        return
+    webbrowser.open("deezer://" + response["link"])
+    if type in ["album","record","disque","playlist","liste","playliste"]:
         time.sleep(2)
         image_path = "images/playlist.png"
-    if type in ["artiste", "artist", "auteur", "chanteur"]:
+    elif type in ["artiste","artist","auteur","chanteur"]:
         time.sleep(2)
         image_path = "images/artiste.png"
-    if type in ["flow", "flo", "Flow", "Flo"]:
-            recherche_flow()
     else:
         time.sleep(2)
         image_path = "images/play.png"
@@ -47,7 +84,7 @@ def recherche_bouton(type, response):
     while time.time() - start_time < 10:
         try:
             plein_ecran()
-            bouton = pyautogui.locateOnScreen(image_path, confidence=0.8)
+            bouton = pyautogui.locateOnScreen(image_path,confidence=0.8)
             if bouton:
                 pyautogui.click(bouton.left + bouton.width // 2,bouton.top + bouton.height // 2)
                 print("Bouton cliqué.")
@@ -63,20 +100,20 @@ def recherche_flow():
     while time.time() - start_time < 10:
         try:
             plein_ecran()
-            bouton = pyautogui.locateOnScreen("images/flow.png", confidence=0.8)
+            bouton = pyautogui.locateOnScreen("images/flow.png",confidence=0.8)
             if bouton:
                 pyautogui.click(bouton.left + bouton.width // 2,bouton.top + bouton.height // 2)
                 print("Flow cliqué.")
                 break
-            break 
         except Exception:
-           pyautogui.scroll(-500) 
+            pyautogui.scroll(-500)
         time.sleep(0.1)
 
 def plein_ecran():
-    fenetre = gw.getWindowsWithTitle("Deezer")[0]
-    if not fenetre.isMaximized:
-        fenetre.maximize()
+    fenetres = gw.getWindowsWithTitle("Deezer")
+    if fenetres:
+        if not fenetres[0].isMaximized:
+            fenetres[0].maximize()
 
 def reconnaissance_vocale():
     r = sr.Recognizer()
@@ -85,44 +122,35 @@ def reconnaissance_vocale():
         print("Parlez maintenant...")
         audio = r.listen(source)
     try:
-        text = r.recognize_google(audio, language="fr-FR")
+        text = r.recognize_google(audio,language="fr-FR")
         print(f'Vous avez dit : {text}')
         return text
     except sr.UnknownValueError:
         print("Impossible de comprendre.")
-        time.sleep(2)
+        return ""
     except sr.RequestError:
         print("Erreur de connexion à l'API de reconnaisance vocale.")
-        time.sleep(2)
-        sys.exit()
+        return ""
 
-def analyse_type(type, titre):
-    if type in ["flow", "flo", "Flow", "Flo"]:
+def analyse_type(type,titre):
+    if type.lower() in ["flow","flo"]:
         print("Recherche du Flow...")
         time.sleep(2)
         return None
-    elif type == "titre" or type == "track" or type == "chanson":
-        response = recherche_titre("track", titre)
-        print(f"Titre : {response['title']}, Artiste : {response['artist']['name']}")
+    elif type in ["titre","track","chanson"]:
+        response = recherche_titre("track",titre)
         return response
-    elif type == "album" or type == "record" or type == "disque":
-        response = recherche_titre("album", titre)
+    elif type in ["album","record","disque"]:
+        response = recherche_titre("album",titre)
         return response
-    elif type == "artiste" or type == "artist" or type == "auteur" or type == "chanteur":
-        response = recherche_titre("artist", titre)
-        print(f"Artiste : {response['name']}")
+    elif type in ["artiste","artist","auteur","chanteur"]:
+        response = recherche_titre("artist",titre)
         return response
-    elif type == "playlist" or type == "liste" or type == "playliste":
-        response = recherche_titre("playlist", titre)
-        print(f"Playlist : {response['title']}")
+    elif type in ["playlist","liste","playliste"]:
+        response = recherche_titre("playlist",titre)
         return response
     else:
-        print("Type non reconnu. Veuillez dire 'Flow', 'Titre', 'Album', 'Artiste' ou 'Playlist' puis le titre.")
-        time.sleep(0.2)
-        print("Recherche par défaut du titre...")
-        time.sleep(0.2)
-        response = recherche_titre("track", titre)
-        print(f"Titre : {response['title']}, Artiste : {response['artist']['name']}")
+        response = recherche_titre("track",titre)
         return response
 
 def start():
@@ -133,18 +161,6 @@ def start():
     print("Si un problème survient, merci de contacter l'auteur.")
 
 if __name__ == '__main__':
-    son = reconnaissance_vocale().lower()
-try:
-    type = next((item for item in list_types if item in son), None)
-    print("Type détecté :", type)
-    if type is None:
-        type = "flow"
-    position_type = son.index(type)
-    son = son[position_type + len(type):].strip()
-
-except Exception:
-    print("Aucun type détecté dans la commande vocale.")
-
-print(f'Analyse du son : {son}')
-response = analyse_type(type, son)
-recherche_bouton(type, response)
+    start()
+    while True:
+        ecoute_continu()
