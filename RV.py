@@ -8,6 +8,7 @@ from nava import play
 import pygetwindow as gw
 
 version = "beta 1.0.0"
+list_types = ["album", "record", "disque", "playlist", "liste", "playliste", "artiste", "artist", "auteur", "chanteur", "flow", "flo", "Flow", "Flo", "titre", "track", "chanson"]
 
 def recherche_titre(type, nom):
     try:
@@ -26,7 +27,22 @@ def recherche_titre(type, nom):
         time.sleep(2)
         sys.exit(1)
 
-def recherch_bouton(image_path):
+def recherche_bouton(type, response):
+    webbrowser.open(f"deezer://{response['link']}?")
+    if response is None:
+        webbrowser.open("deezer://https://www.deezer.com/fr/")
+        recherche_flow()
+    if type in ["album", "record", "disque", "playlist", "liste", "playliste"]:
+        time.sleep(2)
+        image_path = "images/playlist.png"
+    if type in ["artiste", "artist", "auteur", "chanteur"]:
+        time.sleep(2)
+        image_path = "images/artiste.png"
+    if type in ["flow", "flo", "Flow", "Flo"]:
+            recherche_flow()
+    else:
+        time.sleep(2)
+        image_path = "images/play.png"
     start_time = time.time()
     while time.time() - start_time < 10:
         try:
@@ -52,6 +68,7 @@ def recherche_flow():
                 pyautogui.click(bouton.left + bouton.width // 2,bouton.top + bouton.height // 2)
                 print("Flow cliqué.")
                 break
+            break 
         except Exception:
            pyautogui.scroll(-500) 
         time.sleep(0.1)
@@ -69,9 +86,7 @@ def reconnaissance_vocale():
         audio = r.listen(source)
     try:
         text = r.recognize_google(audio, language="fr-FR")
-        type = text.split(" ", 1)[0]
-        titre = text.split(" ", 1)[1:]
-        print(f"Vous avez dit : {type} " + ' '.join(titre))
+        print(f'Vous avez dit : {text}')
         return text
     except sr.UnknownValueError:
         print("Impossible de comprendre.")
@@ -81,9 +96,7 @@ def reconnaissance_vocale():
         time.sleep(2)
         sys.exit()
 
-def analyse_son(son):
-    type = son.split(" ", 1)[0]
-    titre = son.split(" ", 1)[1:]
+def analyse_type(type, titre):
     if type in ["flow", "flo", "Flow", "Flo"]:
         print("Recherche du Flow...")
         time.sleep(2)
@@ -112,28 +125,26 @@ def analyse_son(son):
         print(f"Titre : {response['title']}, Artiste : {response['artist']['name']}")
         return response
 
-if __name__ == '__main__':
+def start():
     print("###########################################################")
     print(f'#     Reconnaissance vocale Deezer version {version}     #')
     print("###########################################################")
     print("Cette application n'est pas officielle et est réservée à un usage personnel")
     print("Si un problème survient, merci de contacter l'auteur.")
-    son = reconnaissance_vocale()
-    response = analyse_son(son)
-    if response is None:
-        webbrowser.open("deezer://https://www.deezer.com/fr/")
-        recherche_flow()
-    else:
-        type = son.split(" ", 1)[0]
-        webbrowser.open(f"deezer://{response['link']}?")
-        if type in ["album", "record", "disque", "playlist", "liste", "playliste"]:
-            time.sleep(2)
-            recherch_bouton("images/playlist.png")
-        if type in ["artiste", "artist", "auteur", "chanteur"]:
-            time.sleep(2)
-            recherch_bouton("images/artiste.png")
-        if type in ["flow", "flo", "Flow", "Flo"]:
-            pass
-        else:
-            time.sleep(2)
-            recherch_bouton("images/play.png")
+
+if __name__ == '__main__':
+    son = reconnaissance_vocale().lower()
+try:
+    type = next((item for item in list_types if item in son), None)
+    print("Type détecté :", type)
+    if type is None:
+        type = "flow"
+    position_type = son.index(type)
+    son = son[position_type + len(type):].strip()
+
+except Exception:
+    print("Aucun type détecté dans la commande vocale.")
+
+print(f'Analyse du son : {son}')
+response = analyse_type(type, son)
+recherche_bouton(type, response)
