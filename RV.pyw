@@ -9,7 +9,7 @@ from gtts import gTTS
 import pygame
 import os
 
-version = "beta 3.5.0"
+version = "beta 3.5.1"
 list_types = ["album","record","disque","playlist","liste","playliste","artiste","artist","auteur","chanteur","flow","flo","Flow","Flo","titre","track","chanson"]
 
 def play_pygame(fichier):
@@ -81,7 +81,7 @@ def ecoute_continu():
                     continue
                 elif "hey play" in text or "et play" in text or "hey lecture" in text or "et lecture" in text:
                     print("Lecture de Deezer.")
-                    parler("Lecture de Deezer.")
+                    parler("Lecture de la chanson.")
                     play_deezer()
                     continue
                 elif "hey pause" in text or "et pause" in text or "hey mets en pause" in text or "et mets en pause" in text:
@@ -157,6 +157,7 @@ def play_deezer():
             if bouton:
                 pyautogui.click(bouton.left + bouton.width // 2,bouton.top + bouton.height // 2)
                 print("Play cliqué.")
+                time.sleep(1)
                 break
         except Exception:
             pass
@@ -174,6 +175,7 @@ def pause_deezer():
             if bouton:
                 pyautogui.click(bouton.left + bouton.width // 2,bouton.top + bouton.height // 2)
                 print("Pause cliqué.")
+                time.sleep(1)
                 break
         except Exception:
             pass
