@@ -9,10 +9,10 @@ from gtts import gTTS
 import pygame
 import os
 
-version = "beta 3.0.0"
+version = "beta 3.5.0"
 list_types = ["album","record","disque","playlist","liste","playliste","artiste","artist","auteur","chanteur","flow","flo","Flow","Flo","titre","track","chanson"]
 
-def play(fichier):
+def play_pygame(fichier):
     try:
         pygame.mixer.init()
         pygame.mixer.init()
@@ -21,13 +21,12 @@ def play(fichier):
     except Exception as e:
         print("Erreur lecture fichier audio :",e)
 
-
 def parler(texte):
     try:
         pygame.mixer.init()
         if pygame.mixer.music.get_busy():
             pygame.mixer.music.stop()
-        nom = f"{texte}.mp3"
+        nom = f"son/{texte}.mp3"
         tts = gTTS(texte,lang="fr")
         tts.save(nom)
         pygame.mixer.music.load(nom)
@@ -79,6 +78,16 @@ def ecoute_continu():
                     print("Baisse du volume.")
                     parler("Baisse du volume.")
                     volume_down()
+                    continue
+                elif "hey play" in text or "et play" in text or "hey lecture" in text or "et lecture" in text:
+                    print("Lecture de Deezer.")
+                    parler("Lecture de Deezer.")
+                    play_deezer()
+                    continue
+                elif "hey pause" in text or "et pause" in text or "hey mets en pause" in text or "et mets en pause" in text:
+                    print("Pause de Deezer.")
+                    parler("Pause de Deezer.")
+                    pause_deezer()
                     continue
                 elif "hey stop" in text  or "et stop" in text or "hey arrête" in text or "et arrête" in text:
                     print("Arrêt de l'assistant vocal Deezer.")
@@ -138,6 +147,40 @@ def recherche_bouton(type,response):
     print("Bouton non trouvé après 10 secondes.")
     time.sleep(2)
 
+def play_deezer():
+    webbrowser.open("deezer://www.deezer.com/fr/")
+    start_time = time.time()
+    while time.time() - start_time < 10:
+        try:
+            plein_ecran()
+            bouton = pyautogui.locateOnScreen("images/play_deezer.png",confidence=0.8)
+            if bouton:
+                pyautogui.click(bouton.left + bouton.width // 2,bouton.top + bouton.height // 2)
+                print("Play cliqué.")
+                break
+        except Exception:
+            pass
+        time.sleep(0.1)
+    print("Bouton non trouvé après 10 secondes.")
+    time.sleep(2)
+
+def pause_deezer():
+    webbrowser.open("deezer://www.deezer.com/fr/")
+    start_time = time.time()
+    while time.time() - start_time < 10:
+        try:
+            plein_ecran()
+            bouton = pyautogui.locateOnScreen("images/pause_deezer.png",confidence=0.8)
+            if bouton:
+                pyautogui.click(bouton.left + bouton.width // 2,bouton.top + bouton.height // 2)
+                print("Pause cliqué.")
+                break
+        except Exception:
+            pass
+        time.sleep(0.1)
+    print("Bouton non trouvé après 10 secondes.")
+    time.sleep(2)
+
 def recherche_flow():
     start_time = time.time()
     while time.time() - start_time < 10:
@@ -161,7 +204,7 @@ def plein_ecran():
 def reconnaissance_vocale():
     r = sr.Recognizer()
     with sr.Microphone() as source:
-        play("start_enr.mp3")
+        play_pygame("son/start_enr.mp3")
         print("Parlez maintenant...")
         audio = r.listen(source)
     try:
