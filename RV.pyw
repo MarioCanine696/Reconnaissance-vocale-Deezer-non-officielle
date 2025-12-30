@@ -7,23 +7,40 @@ import sys
 import pygetwindow as gw
 from gtts import gTTS
 import pygame
+import os
+
 
 def play(fichier):
-    pygame.mixer.init()
-    pygame.mixer.music.load(fichier)
-    pygame.mixer.music.play()
+    try:
+        pygame.mixer.init()
+        pygame.mixer.init()
+        pygame.mixer.music.load(fichier)
+        pygame.mixer.music.play()
+    except Exception as e:
+        print("Erreur lecture fichier audio :",e)
+
 
 def parler(texte):
-    tts = gTTS(texte, lang="fr")
-    tts.save("temp.mp3")
-
-    pygame.mixer.init()
-    pygame.mixer.music.load("temp.mp3")
-    pygame.mixer.music.play()
+    try:
+        pygame.mixer.init()
+        if pygame.mixer.music.get_busy():
+            pygame.mixer.music.stop()
+        nom = f"{texte}.mp3"
+        tts = gTTS(texte,lang="fr")
+        tts.save(nom)
+        pygame.mixer.music.load(nom)
+        pygame.mixer.music.play()
+    except Exception as e:
+        print("Erreur TTS :",e)
 
 
 version = "beta 2.1.0"
 list_types = ["album","record","disque","playlist","liste","playliste","artiste","artist","auteur","chanteur","flow","flo","Flow","Flo","titre","track","chanson"]
+
+def volume_up():
+    os.system("augmenter_volume.bat")
+def volume_down():
+    os.system("reduire_volume.bat")
 
 def ecoute_continu():
     r = sr.Recognizer()
@@ -34,8 +51,38 @@ def ecoute_continu():
                 text = r.recognize_google(audio,language="fr-FR").lower()
                 if "hey deezer" in text or "et deezer" in text:
                     time.sleep(1)
-                    break
-                elif "stop deezer" in text or "arrête deezer" in text:
+                    son = reconnaissance_vocale()
+                    if not son:
+                        return
+                    son = son.lower()
+                    try:
+                        type = next((item for item in list_types if item.lower() in son),None)
+                        print("Type détecté :",type)
+                        if type is None:
+                            type = "titre"
+                            position_type = 0
+                        else:
+                            position_type = son.index(type.lower())
+                        titre = son[position_type + len(type):].strip()
+                    except Exception:
+                        print("Aucun type détecté dans la commande vocale.")
+                        return
+                    print(f'Analyse du son : {titre}')
+                    response = analyse_type(type,titre)
+                    recherche_bouton(type,response)
+                    time.sleep(2)
+                    print("Relance la commande vocale...")
+                elif "hey up" in text or "et up" in text or "hey augmente" in text or "et augmente" in text:
+                    print("Augmentation du volume.")
+                    parler("Augmentation du volume.")
+                    volume_up()
+                    continue
+                elif "hey down" in text or "et down" in text or "hey baisse" in text or "et baisse" in text:
+                    print("Baisse du volume.")
+                    parler("Baisse du volume.")
+                    volume_down()
+                    continue
+                elif "hey stop" in text  or "et stop" in text or "hey arrête" in text or "et arrête" in text:
                     print("Arrêt de l'assistant vocal Deezer.")
                     parler("Arrêt de l'assistant vocal Deezer.")
                     time.sleep(2)
@@ -44,27 +91,7 @@ def ecoute_continu():
                 continue
             except sr.RequestError:
                 continue
-    son = reconnaissance_vocale()
-    if not son:
-        return
-    son = son.lower()
-    try:
-        type = next((item for item in list_types if item.lower() in son),None)
-        print("Type détecté :",type)
-        if type is None:
-            type = "titre"
-            position_type = 0
-        else:
-            position_type = son.index(type.lower())
-        titre = son[position_type + len(type):].strip()
-    except Exception:
-        print("Aucun type détecté dans la commande vocale.")
-        return
-    print(f'Analyse du son : {titre}')
-    response = analyse_type(type,titre)
-    recherche_bouton(type,response)
-    time.sleep(2)
-    print("Relance la commande vocale...")
+    
 
 def recherche_titre(type,nom):
     try:

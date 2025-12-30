@@ -2,5 +2,5 @@ SpeechRecognition
 requests
 pyautogui
 gtts
-pyaudio
 pygame
+pycaw 
