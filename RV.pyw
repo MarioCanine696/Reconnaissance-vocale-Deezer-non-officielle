@@ -9,6 +9,8 @@ from gtts import gTTS
 import pygame
 import os
 
+version = "beta 3.0.0"
+list_types = ["album","record","disque","playlist","liste","playliste","artiste","artist","auteur","chanteur","flow","flo","Flow","Flo","titre","track","chanson"]
 
 def play(fichier):
     try:
@@ -32,10 +34,6 @@ def parler(texte):
         pygame.mixer.music.play()
     except Exception as e:
         print("Erreur TTS :",e)
-
-
-version = "beta 2.1.0"
-list_types = ["album","record","disque","playlist","liste","playliste","artiste","artist","auteur","chanteur","flow","flo","Flow","Flo","titre","track","chanson"]
 
 def volume_up():
     os.system("augmenter_volume.bat")
