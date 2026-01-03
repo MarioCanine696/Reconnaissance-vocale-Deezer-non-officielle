@@ -1,0 +1,1 @@
+Ma clé d'api disponible sur https://console.picovoice.ai/ (tout replacer)

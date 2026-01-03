@@ -17,8 +17,10 @@ version = "beta 4.0.0"
 # Sécurité Porcupine
 is_listening = True
 
-# Initialisation Porcupine et Whisper
-porcupine = pvporcupine.create(keyword_paths=["porcupine/Et-assistant_fr_windows_v4_0_0.ppn"],model_path="porcupine/porcupine_params_fr.pv", access_key="r78/HKaKEovLCkPWuZu3QgaUJUwEHVouM4USaWQNnqvw77nW0EuI+g==")
+# Initialisation Porcupine
+with open("api_key.txt", "r", encoding="utf-8") as f:
+        contenu = f.read()
+porcupine = pvporcupine.create(keyword_paths=["porcupine/Et-assistant_fr_windows_v4_0_0.ppn"],model_path="porcupine/porcupine_params_fr.pv", access_key=contenu)
 RATE = 16000
 
 def play_pygame(fichier):
