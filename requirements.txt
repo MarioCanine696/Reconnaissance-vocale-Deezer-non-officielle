@@ -4,3 +4,6 @@ pyautogui
 gtts
 pygame
 pycaw 
+numpy
+pygetwindow
+sounddevice
