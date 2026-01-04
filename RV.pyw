@@ -12,7 +12,7 @@ import pvporcupine
 import sounddevice as sd
 import numpy as np
 
-version = "beta 4.0.0"
+version = "beta 4.1.0"
 
 # Sécurité Porcupine
 is_listening = True
@@ -43,7 +43,11 @@ def parler(texte):
         pygame.mixer.music.load(nom)
         pygame.mixer.music.play()
     except Exception as e:
-        print("Erreur TTS :",e)
+        try:
+            pygame.mixer.music.load(f"son/{texte}.mp3")
+            pygame.mixer.music.play()
+        except Exception:
+            print("Erreur lecture fichier audio :",e)
 
 def volume_up():
     os.system("augmenter_volume.bat")
@@ -141,7 +145,7 @@ def recherche_bouton(type,response):
         recherche_flow()
         return
     if response is None:
-        webbrowser.open("deezer://www.deezer.com/fr/")
+        webbrowser.open("deezer://")
         return
     webbrowser.open("deezer://" + response["link"])
     if type in ["album","record","disque","playlist","liste","playliste"]:
