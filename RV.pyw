@@ -160,6 +160,9 @@ def recherche_bouton(type,response):
     elif type in ["artiste","artist","auteur","chanteur"]:
         time.sleep(2)
         image_path = "images/artiste.png"
+    elif type in ["titre","track","chanson"]:
+        time.sleep(5)
+        image_path = "images/play.png"
     else:
         time.sleep(2)
         image_path = "images/play.png"
