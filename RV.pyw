@@ -12,7 +12,7 @@ import pvporcupine
 import sounddevice as sd
 import numpy as np
 
-version = "beta 4.1.0"
+version = "beta 4.1.5"
 
 # Sécurité Porcupine
 is_listening = True
@@ -42,10 +42,16 @@ def parler(texte):
         tts.save(nom)
         pygame.mixer.music.load(nom)
         pygame.mixer.music.play()
+        while pygame.mixer.music.get_busy():
+            pygame.time.Clock().tick(10)
+        os.remove(nom)
     except Exception as e:
         try:
             pygame.mixer.music.load(f"son/{texte}.mp3")
             pygame.mixer.music.play()
+            while pygame.mixer.music.get_busy():
+                pygame.time.Clock().tick(10)
+            os.remove(nom)
         except Exception:
             print("Erreur lecture fichier audio :",e)
 
@@ -158,7 +164,7 @@ def recherche_bouton(type,response):
         time.sleep(2)
         image_path = "images/play.png"
     start_time = time.time()
-    while time.time() - start_time < 10:
+    while time.time() - start_time < 20:
         try:
             plein_ecran()
             bouton = pyautogui.locateOnScreen(image_path,confidence=0.8)
