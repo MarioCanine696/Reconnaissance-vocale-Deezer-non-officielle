@@ -1,3 +1,4 @@
+from pywinauto import Application
 import sys
 import speech_recognition as sr
 import requests
@@ -17,43 +18,38 @@ version = "beta 4.1.5"
 # Sécurité Porcupine
 is_listening = True
 
+# Initialisation Pygame
+pygame.mixer.init()
+
 # Initialisation Porcupine
 with open("api_key.txt", "r", encoding="utf-8") as f:
         contenu = f.read()
 porcupine = pvporcupine.create(keyword_paths=["porcupine/Et-assistant_fr_windows_v4_0_0.ppn"],model_path="porcupine/porcupine_params_fr.pv", access_key=contenu)
 RATE = 16000
 
-def play_pygame(fichier):
-    try:
-        pygame.mixer.init()
-        pygame.mixer.init()
-        pygame.mixer.music.load(fichier)
-        pygame.mixer.music.play()
-    except Exception as e:
-        print("Erreur lecture fichier audio :",e)
+pygame.mixer.init()
 
-def parler(texte):
+def play_pygame(chemin_fichier):
     try:
-        pygame.mixer.init()
-        if pygame.mixer.music.get_busy():
-            pygame.mixer.music.stop()
-        nom = f"son/{texte}.mp3"
-        tts = gTTS(texte,lang="fr")
-        tts.save(nom)
-        pygame.mixer.music.load(nom)
+        pygame.mixer.music.load(chemin_fichier)
         pygame.mixer.music.play()
         while pygame.mixer.music.get_busy():
             pygame.time.Clock().tick(10)
-        os.remove(nom)
+        pygame.mixer.music.unload()
     except Exception as e:
-        try:
-            pygame.mixer.music.load(f"son/{texte}.mp3")
-            pygame.mixer.music.play()
-            while pygame.mixer.music.get_busy():
-                pygame.time.Clock().tick(10)
-            os.remove(nom)
-        except Exception:
-            print("Erreur lecture fichier audio :",e)
+        print(f"Erreur play : {e}")
+
+def parler(texte):
+    nom_temp = "voix_temp.mp3"
+    try:
+        tts = gTTS(text=texte, lang='fr')
+        tts.save(nom_temp)
+        play_pygame(nom_temp)
+        if os.path.exists(nom_temp):
+            os.remove(nom_temp)
+    except Exception as e:
+        print(f"Erreur parler : {e}")
+
 
 def volume_up():
     os.system("augmenter_volume.bat")
@@ -129,7 +125,13 @@ def analyse_son(son):
         return
     print(f'Analyse du son : {titre}')
     response = analyse_type(type,titre)
-    recherche_bouton(type,response)
+    if response is None:
+        print("Aucun résultat trouvé pour la recherche.")
+        parler("Désolé, aucun résultat trouvé pour votre recherche.")
+        return
+    else:
+        webbrowser.open("deezer://" + response['link'])
+        recherche_bouton(type)
 
 def recherche_titre(type,nom):
     try:
@@ -146,40 +148,26 @@ def recherche_titre(type,nom):
         print("Erreur lors de la recherche du titre.")
         return None
 
-def recherche_bouton(type,response):
+def recherche_bouton(type):
     if type.lower() in ["flow","flo"]:
         recherche_flow()
         return
-    if response is None:
-        webbrowser.open("deezer://")
-        return
-    webbrowser.open("deezer://" + response["link"])
-    if type in ["album","record","disque","playlist","liste","playliste"]:
-        time.sleep(2)
-        image_path = "images/playlist.png"
-    elif type in ["artiste","artist","auteur","chanteur"]:
-        time.sleep(2)
-        image_path = "images/artiste.png"
-    elif type in ["titre","track","chanson"]:
-        time.sleep(5)
-        image_path = "images/play.png"
-    else:
-        time.sleep(2)
-        image_path = "images/play.png"
+    app_deezer = Application(backend="uia").connect(title="Deezer")
+    DEEZER_WIN = app_deezer.top_window()
     start_time = time.time()
-    while time.time() - start_time < 20:
+    clicked = False
+    while (time.time() - start_time < 20) and not clicked:
         try:
             plein_ecran()
-            bouton = pyautogui.locateOnScreen(image_path,confidence=0.5)
-            if bouton:
-                pyautogui.click(bouton.left + bouton.width // 2,bouton.top + bouton.height // 2)
-                print("Bouton cliqué.")
-                break
-        except Exception:
-            pass
+            btn = DEEZER_WIN.child_window(title="Écouter", control_type="Button", found_index=0)
+            btn.click_input()
+            clicked = True
+        except Exception as e:
+            print("Erreur clic Écouter :", e)
         time.sleep(0.1)
-    print("Bouton non trouvé après 10 secondes.")
-    time.sleep(2)
+    
+    if not clicked:
+        print("Bouton non trouvé après 20 secondes.")
 
 def play_deezer():
     webbrowser.open("deezer://www.deezer.com/fr/")
@@ -189,7 +177,7 @@ def play_deezer():
             plein_ecran()
             bouton = pyautogui.locateOnScreen("images/play_deezer.png",confidence=0.8)
             if bouton:
-                pyautogui.click(bouton.left + bouton.width // 2,bouton.top + bouton.height // 2)
+                pyautogui.click(pyautogui.center(bouton))
                 print("Play cliqué.")
                 time.sleep(1)
                 break
@@ -207,7 +195,7 @@ def pause_deezer():
             plein_ecran()
             bouton = pyautogui.locateOnScreen("images/pause_deezer.png",confidence=0.8)
             if bouton:
-                pyautogui.click(bouton.left + bouton.width // 2,bouton.top + bouton.height // 2)
+                pyautogui.click(pyautogui.center(bouton))
                 print("Pause cliqué.")
                 time.sleep(1)
                 break
@@ -215,7 +203,6 @@ def pause_deezer():
             pass
         time.sleep(0.1)
     print("Bouton non trouvé après 10 secondes.")
-    time.sleep(2)
 
 def recherche_flow():
     start_time = time.time()
@@ -241,23 +228,20 @@ def plein_ecran():
 def analyse_type(type,titre):
     if type.lower() in ["flow","flo"]:
         print("Recherche du Flow...")
-        time.sleep(2)
         return None
     elif type in ["titre","track","chanson"]:
         response = recherche_titre("track",titre)
-        return response
     elif type in ["album","record","disque"]:
         response = recherche_titre("album",titre)
-        return response
     elif type in ["artiste","artist","auteur","chanteur"]:
         response = recherche_titre("artist",titre)
-        return response
     elif type in ["playlist","liste","playliste"]:
         response = recherche_titre("playlist",titre)
-        return response
     else:
         response = recherche_titre("track",titre)
-        return response
+    print("Analyse type réussite.")
+    return response
+
 
 def start():
     print("###########################################################")
@@ -265,6 +249,7 @@ def start():
     print("###########################################################")
     print("Cette application n'est pas officielle et est réservée à un usage personnel")
     print("Si un problème survient, merci de contacter l'auteur.")
+    webbrowser.open("deezer://www.deezer.com/fr/")
 
 if __name__ == '__main__':
     start()
