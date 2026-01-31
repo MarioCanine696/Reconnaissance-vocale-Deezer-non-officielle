@@ -1,3 +1,4 @@
+from flask import json
 from pywinauto import Application
 import sys
 import speech_recognition as sr
@@ -52,9 +53,9 @@ def parler(texte):
 
 
 def volume_up():
-    os.system("augmenter_volume.bat")
+    os.system("misc/augmenter_volume.bat")
 def volume_down():
-    os.system("reduire_volume.bat")
+    os.system("misc/reduire_volume.bat")
 
 def ecoute_continu(indata, frames, time, status):
     global is_listening
@@ -74,7 +75,7 @@ def ecoute_continu(indata, frames, time, status):
 def reconnaissance_vocale():
     r = sr.Recognizer()
     with sr.Microphone() as source:
-        play_pygame("start_enr.mp3")
+        play_pygame("misc/start_enr.mp3")
         print("Parlez maintenant...")
         audio = r.listen(source)
     try:
@@ -105,18 +106,16 @@ def analyse_son(son):
             volume_down()
             return
         elif type.lower() in ["pause"]:
-            pause_deezer()
+            play_pause_deezer()
             return
         elif type.lower() in ["lance","relance","joue"]:
-            play_deezer()
+            play_pause_deezer()
             return
         elif type.lower() in ["arrête","stop"]:
             print("Arrêt de l'assistant vocal Deezer.")
             parler("Arrêt de l'assistant vocal Deezer.")
             time.sleep(2)
             sys.exit()
-        elif type.lower() in ["flow","flo","Flow","Flo"]:
-            recherche_flow()
         else:
             position_type = son.index(type.lower())
             titre = son[position_type + len(type):].strip()
@@ -149,9 +148,6 @@ def recherche_titre(type,nom):
         return None
 
 def recherche_bouton(type):
-    if type.lower() in ["flow","flo"]:
-        recherche_flow()
-        return
     app_deezer = Application(backend="uia").connect(title="Deezer")
     DEEZER_WIN = app_deezer.top_window()
     start_time = time.time()
@@ -169,54 +165,20 @@ def recherche_bouton(type):
     if not clicked:
         print("Bouton non trouvé après 20 secondes.")
 
-def play_deezer():
+def play_pause_deezer():
     webbrowser.open("deezer://www.deezer.com/fr/")
-    start_time = time.time()
-    while time.time() - start_time < 10:
-        try:
-            plein_ecran()
-            bouton = pyautogui.locateOnScreen("images/play_deezer.png",confidence=0.8)
-            if bouton:
-                pyautogui.click(pyautogui.center(bouton))
-                print("Play cliqué.")
-                time.sleep(1)
-                break
-        except Exception:
-            pass
-        time.sleep(0.1)
-    print("Bouton non trouvé après 10 secondes.")
     time.sleep(2)
+    with open('misc/config.json', 'r', encoding='utf-8') as fichier:
+        donnees = json.load(fichier)
+    if donnees is None:
+        parler("Merci de lancer le fichier config.py")
+        return
+    x = donnees["play_pause_button_position"]["x"]
+    y = donnees["play_pause_button_position"]["y"]
+    pyautogui.click(x, y)
+    print("Bouton play/pause cliqué.")
+    return
 
-def pause_deezer():
-    webbrowser.open("deezer://www.deezer.com/fr/")
-    start_time = time.time()
-    while time.time() - start_time < 10:
-        try:
-            plein_ecran()
-            bouton = pyautogui.locateOnScreen("images/pause_deezer.png",confidence=0.8)
-            if bouton:
-                pyautogui.click(pyautogui.center(bouton))
-                print("Pause cliqué.")
-                time.sleep(1)
-                break
-        except Exception:
-            pass
-        time.sleep(0.1)
-    print("Bouton non trouvé après 10 secondes.")
-
-def recherche_flow():
-    start_time = time.time()
-    while time.time() - start_time < 10:
-        try:
-            plein_ecran()
-            bouton = pyautogui.locateOnScreen("images/flow.png",confidence=0.5)
-            if bouton:
-                pyautogui.click(bouton.left + bouton.width // 2,bouton.top + bouton.height // 2)
-                print("Flow cliqué.")
-                break
-        except Exception:
-            pyautogui.scroll(-500)
-        time.sleep(0.1)
 
 def plein_ecran():
     fenetres = gw.getWindowsWithTitle("Deezer")
@@ -237,6 +199,8 @@ def analyse_type(type,titre):
         response = recherche_titre("artist",titre)
     elif type in ["playlist","liste","playliste"]:
         response = recherche_titre("playlist",titre)
+    elif type in ["podcast","podcasts","podcaste"]:
+        response = recherche_titre("podcast",titre)
     else:
         response = recherche_titre("track",titre)
     print("Analyse type réussite.")
