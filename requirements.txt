@@ -1,9 +1,11 @@
+flask
+pywinauto
 SpeechRecognition
 requests
-gtts
-pygame
-pycaw 
-numpy
+pyautogui
 pygetwindow
-sounddevice
+gTTS
+pygame
 pvporcupine
+sounddevice
+numpy

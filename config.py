@@ -23,7 +23,7 @@ def config():
             "y": y
         }
     }
-    with open("config.json", "w") as f:
+    with open("misc/config.json", "w") as f:
         json.dump(config_data, f, indent=4)
     showinfo('Configuration', 'Configuration terminée ! Vous pouvez fermer cette fenêtre.')
 

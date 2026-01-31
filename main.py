@@ -14,7 +14,7 @@ import pvporcupine
 import sounddevice as sd
 import numpy as np
 
-version = "beta 5.0.0"
+version = "beta 5.0.1"
 
 # Sécurité Porcupine
 is_listening = True
@@ -167,6 +167,7 @@ def recherche_bouton(type):
 
 def play_pause_deezer():
     webbrowser.open("deezer://www.deezer.com/fr/")
+    plein_ecran()
     time.sleep(2)
     with open('misc/config.json', 'r', encoding='utf-8') as fichier:
         donnees = json.load(fichier)
