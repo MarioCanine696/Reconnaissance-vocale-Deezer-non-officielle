@@ -9,7 +9,7 @@ Pour faire fonctionner ce script : "pip install -r requirements.txt" puis lancer
 
 Cette application n'est pas officielle et est réservée à un usage personnel
 
-Inclu un fichier ahk pour autokey
+Inclu un fichier ahk pour autokey dans le dossier misc
 
 Voici les différentes commandes (commencez par Hey assistant) :
 - titre/chanson/playlist/album/artiste + titre de la chanson/playlist/album/artiste
