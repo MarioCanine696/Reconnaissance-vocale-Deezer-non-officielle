@@ -14,7 +14,7 @@ import pvporcupine
 import sounddevice as sd
 import numpy as np
 
-version = "beta 4.1.5"
+version = "beta 5.0.0"
 
 # Sécurité Porcupine
 is_listening = True

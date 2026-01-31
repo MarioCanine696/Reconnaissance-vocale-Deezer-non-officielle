@@ -1,9 +1,9 @@
 SpeechRecognition
 requests
-pyautogui
 gtts
 pygame
 pycaw 
 numpy
 pygetwindow
 sounddevice
+pvporcupine
