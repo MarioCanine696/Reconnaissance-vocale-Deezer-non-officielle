@@ -24,8 +24,8 @@ pygame.mixer.init()
 
 # Initialisation Porcupine
 with open("api_key.txt", "r", encoding="utf-8") as f:
-        contenu = f.read()
-porcupine = pvporcupine.create(keyword_paths=["porcupine/Et-assistant_fr_windows_v4_0_0.ppn"],model_path="porcupine/porcupine_params_fr.pv", access_key=contenu)
+        api_key = f.read()
+porcupine = pvporcupine.create(keyword_paths=["porcupine/Et-assistant_fr_windows_v4_0_0.ppn"],model_path="porcupine/porcupine_params_fr.pv", access_key=api_key)
 RATE = 16000
 
 pygame.mixer.init()
@@ -34,8 +34,6 @@ def play_pygame(chemin_fichier):
     try:
         pygame.mixer.music.load(chemin_fichier)
         pygame.mixer.music.play()
-        while pygame.mixer.music.get_busy():
-            pygame.time.Clock().tick(10)
         pygame.mixer.music.unload()
     except Exception as e:
         print(f"Erreur play : {e}")
@@ -86,7 +84,7 @@ def reconnaissance_vocale():
         print("Impossible de comprendre")
         parler("Désolé, je n'ai pas compris.")
     except sr.RequestError as e:
-        print("Erreur de service; {0}".format(e))
+        print("Erreur de service : " + str(e))
         parler("Désolé, le service de reconnaissance vocale est indisponible.")
 
 def analyse_son(son):

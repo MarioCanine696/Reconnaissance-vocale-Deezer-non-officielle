@@ -1,7 +1,7 @@
 # Reconnaisance vocale Deezer - Projet personnel de Marceau CRANDAL KABBANI m.zeldacyrano@gmail.com
 Cette application fonctionne uniquement sur Windows
 
-L'application pour bureau deezer est necessaire
+L'application pour PC Deezer est necessaire
 
 Cette application necessite une clé d'API https://console.picovoice.ai/ à copier dans api_key.txt ainsi que python 3.1 ou plus
 
@@ -11,7 +11,7 @@ Cette application n'est pas officielle et est réservée à un usage personnel
 
 Inclu un fichier ahk pour autokey dans le dossier misc
 
-Voici les différentes commandes (commencez par Hey assistant) :
+Voici les différentes commandes (commencez par Hey assistant puis attendez la fin de la lecture du son) :
 - titre/chanson/playlist/album/artiste + titre de la chanson/playlist/album/artiste
 - augmente (augmente le son de 10 %)
 - baisse (baisse le son de 10 %)
