@@ -28,18 +28,15 @@ with open("api_key.txt", "r", encoding="utf-8") as f:
 porcupine = pvporcupine.create(keyword_paths=["porcupine/Et-assistant_fr_windows_v4_0_0.ppn"],model_path="porcupine/porcupine_params_fr.pv", access_key=api_key)
 RATE = 16000
 
-pygame.mixer.init()
-
 def play_pygame(chemin_fichier):
     try:
         pygame.mixer.music.load(chemin_fichier)
         pygame.mixer.music.play()
-        pygame.mixer.music.unload()
     except Exception as e:
         print(f"Erreur play : {e}")
 
 def parler(texte):
-    nom_temp = "voix_temp.mp3"
+    nom_temp = "cache.mp3"
     try:
         tts = gTTS(text=texte, lang='fr')
         tts.save(nom_temp)
@@ -51,9 +48,13 @@ def parler(texte):
 
 
 def volume_up():
-    os.system("misc/augmenter_volume.bat")
+    os.chdir("misc")
+    os.system("augmenter_volume.bat")
+    os.chdir("..")
 def volume_down():
-    os.system("misc/reduire_volume.bat")
+    os.chdir("misc")
+    os.system("reduire_volume.bat")
+    os.chdir("..")
 
 def ecoute_continu(indata, frames, time, status):
     global is_listening
@@ -78,7 +79,7 @@ def reconnaissance_vocale():
         audio = r.listen(source)
     try:
         text = r.recognize_google(audio,language="fr-FR")
-        print("Tu as dit :", text)
+        print("Analyse de l'audio :", text)
         analyse_son(text)
     except sr.UnknownValueError:
         print("Impossible de comprendre")
@@ -88,11 +89,11 @@ def reconnaissance_vocale():
         parler("Désolé, le service de reconnaissance vocale est indisponible.")
 
 def analyse_son(son):
-    list_types = ["augmente","baisse","pause","lance","relance","playlist","arrête","stop","album","record","disque","play","liste","playliste","artiste","artist","auteur","chanteur","flow","flo","Flow","Flo","titre","track","chanson"]
+    list_types = ["augmente","baisse","réduis","réduit","pause","lance","relance","playlist","arrête","stop","album","record","disque","play","liste","playliste","artiste","artist","auteur","chanteur","flow","flo","Flow","Flo","titre","track","chanson"]
     son = son.lower()
     try:
         type = next((item for item in list_types if item.lower() in son),None)
-        print("Type détecté :",type)
+        print("Type :",type)
         if type is None:
             type = "titre"
             position_type = 0
@@ -120,7 +121,7 @@ def analyse_son(son):
     except Exception:
         print("Aucun type détecté dans la commande vocale.")
         return
-    print(f'Analyse du son : {titre}')
+    print(f'Titre : {titre}')
     response = analyse_type(type,titre)
     if response is None:
         print("Aucun résultat trouvé pour la recherche.")
@@ -128,7 +129,7 @@ def analyse_son(son):
         return
     else:
         webbrowser.open("deezer://" + response['link'])
-        recherche_bouton(type)
+        recherche_bouton()
 
 def recherche_titre(type,nom):
     try:
@@ -145,7 +146,7 @@ def recherche_titre(type,nom):
         print("Erreur lors de la recherche du titre.")
         return None
 
-def recherche_bouton(type):
+def recherche_bouton():
     app_deezer = Application(backend="uia").connect(title="Deezer")
     DEEZER_WIN = app_deezer.top_window()
     start_time = time.time()
@@ -154,7 +155,7 @@ def recherche_bouton(type):
         try:
             plein_ecran()
             btn = DEEZER_WIN.child_window(title="Écouter", control_type="Button", found_index=0)
-            btn.click_input()
+            btn.invoke()
             clicked = True
         except Exception as e:
             print("Erreur clic Écouter :", e)
@@ -202,7 +203,6 @@ def analyse_type(type,titre):
         response = recherche_titre("podcast",titre)
     else:
         response = recherche_titre("track",titre)
-    print("Analyse type réussite.")
     return response
 
 
@@ -218,6 +218,7 @@ if __name__ == '__main__':
     start()
     print("Assistant vocal Deezer en écoute dites Hey Deezer pour lancer une commande vocale et dites Arrête Deezer pour arrêter l'assistant.")
     parler("Lancement de l'assistant vocal.")
+    time.sleep(2)
     with sd.InputStream(
     channels=1, samplerate=RATE, blocksize=porcupine.frame_length, dtype='int16', callback=ecoute_continu):
         print("Assistant en écoute…")
