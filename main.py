@@ -14,7 +14,7 @@ import pvporcupine
 import sounddevice as sd
 import numpy as np
 
-version = "beta 5.0.1"
+version = "1.0.0"
 
 # Sécurité Porcupine
 is_listening = True
@@ -129,7 +129,7 @@ def analyse_son(son):
         return
     else:
         webbrowser.open("deezer://" + response['link'])
-        recherche_bouton()
+        recherche_bouton(type)
 
 def recherche_titre(type,nom):
     try:
@@ -146,20 +146,31 @@ def recherche_titre(type,nom):
         print("Erreur lors de la recherche du titre.")
         return None
 
-def recherche_bouton():
+def recherche_bouton(type):
     app_deezer = Application(backend="uia").connect(title="Deezer")
     DEEZER_WIN = app_deezer.top_window()
     start_time = time.time()
     clicked = False
-    while (time.time() - start_time < 20) and not clicked:
-        try:
-            plein_ecran()
-            btn = DEEZER_WIN.child_window(title="Écouter", control_type="Button", found_index=0)
-            btn.invoke()
-            clicked = True
-        except Exception as e:
-            print("Erreur clic Écouter :", e)
-        time.sleep(0.1)
+    if type in ["artiste","artist","auteur","chanteur"] :
+        while (time.time() - start_time < 20) and not clicked:
+            try:
+                plein_ecran()
+                btn = DEEZER_WIN.child_window(title="Mix", control_type="Button", found_index=0)
+                btn.invoke()
+                clicked = True
+            except Exception as e:
+                print("Erreur clic Écouter :", e)
+            time.sleep(0.1)
+    else : 
+        while (time.time() - start_time < 20) and not clicked:
+            try:
+                plein_ecran()
+                btn = DEEZER_WIN.child_window(title="Écouter", control_type="Button", found_index=0)
+                btn.invoke()
+                clicked = True
+            except Exception as e:
+                print("Erreur clic Écouter :", e)
+            time.sleep(0.1)
     
     if not clicked:
         print("Bouton non trouvé après 20 secondes.")
@@ -207,9 +218,9 @@ def analyse_type(type,titre):
 
 
 def start():
-    print("###########################################################")
+    print("#######################################################")
     print(f'#     Reconnaissance vocale Deezer version {version}     #')
-    print("###########################################################")
+    print("#######################################################")
     print("Cette application n'est pas officielle et est réservée à un usage personnel")
     print("Si un problème survient, merci de contacter l'auteur.")
     webbrowser.open("deezer://www.deezer.com/fr/")
