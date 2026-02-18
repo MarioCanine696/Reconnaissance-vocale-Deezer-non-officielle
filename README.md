@@ -7,6 +7,8 @@ Cette application necessite une clé d'API https://console.picovoice.ai/ à copi
 
 Pour faire fonctionner ce script : "pip install -r requirements.txt" puis lancer le config.py
 
+Pour lancer l'assistant ouvrir le main.py
+
 Cette application n'est pas officielle et est réservée à un usage personnel
 
 Inclu un fichier ahk pour autokey dans le dossier misc
